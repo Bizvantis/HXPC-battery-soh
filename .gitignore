@@ -1,0 +1,22 @@
+# third-party data (download separately, see README)
+data/
+# large intermediate predictions
+results/offline/
+results/*.pkl
+results/*.log
+# local tools and builds
+tools/
+paper/*.pdf
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+*.pdf
+__pycache__/
+*.pyc
+.venv/
+# manuscript sources and literature notes stay private until publication
+paper/
+lit/
+# remove the line above if you want to publish the LaTeX sources
+GITHUB_SETUP.md
