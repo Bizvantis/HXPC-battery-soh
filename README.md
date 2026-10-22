@@ -48,9 +48,9 @@ Run all commands from `code/`:
 | Leave-one-domain-out: heterogeneous backbone (HDSE) | `python run_proposed.py --seeds 0 1 2` | `results/offline/lodo_hdse/*.pkl` | ~1.3 h / seed |
 | Leave-one-dataset-out | `python run_offline.py --protocol lodso` and `python run_proposed.py --protocol lodso` | `results/offline/lodso*` | ~1 h |
 | Calibration, online simulation, metrics | `python -c "import evaluate as E; E.evaluate('lodo'); E.evaluate('lodso')"` | `results/metrics_*.csv` | ~1 h |
-| Sensitivity, trajectory certificate, life-stage analysis | `python analysis_extra.py` and `python analysis_more.py` | `results/*.csv` | ~20 min |
+| Sensitivity, trajectory certificate, life-stage analysis | `python analysis_extra.py`, `python analysis_more.py`, `python analysis_deploy.py`, `python analysis_decision.py` | `results/*.csv` | ~20 min |
 | In-domain benchmark vs. Wang et al. | `python benchmark_wang.py` and `python leakage.py` | `results/benchmark_wang*.csv`, `results/leakage.csv` | ~10 min |
-| Tables and figures | `python make_tables.py`, `python make_tables_extra.py`, `python make_tab_data.py`, `python make_tab_point.py`, `python figures.py data coverage L traj extra` | `paper/*.tex`, `paper/figs/*` | ~2 min |
+| Tables and figures | `python make_tables.py`, `python make_tables_extra.py`, `python make_tab_deploy.py`, `python make_tab_decision.py`, `python make_tab_data.py`, `python make_tab_point.py`, `python figures.py data coverage L traj extra` | `paper/*.tex`, `paper/figs/*` | ~2 min |
 
 `run_all.sh` runs the whole pipeline.
 
@@ -64,6 +64,7 @@ Run all commands from `code/`:
 | `code/conformal.py` | split/weighted quantiles, hierarchical weights, trajectory threshold, online quantile tracker |
 | `code/evaluate.py` | all day-zero and in-service methods, nested source-only hyper-parameter selection, metrics |
 | `code/analysis_extra.py`, `code/analysis_more.py` | step-size sensitivity, trajectory certificate, life stage, adaptivity, online threshold, label budget |
+| `code/analysis_deploy.py`, `code/analysis_decision.py` | noisy/irregular check-ups, per-cell vs fleet tracking, fleet size; maintenance-alarm evaluation |
 | `code/run_offline.py` | fits every baseline once per fold and stores predictions |
 | `code/exploratory/` | early prototypes, kept for transparency (not used for any reported number) |
 

@@ -104,7 +104,10 @@ def day0_proposed(mu, sd, inner, alpha):
 
 # ------------------------------------------------------------------------- online simulation
 def checkup_mask(df, L):
-    """Capacity check-ups every L cycles after commissioning (cycle index relative to K_REF=5)."""
+    """Capacity check-ups every L cycles after commissioning (cycle index relative to K_REF=5).
+    A boolean column `cu_override` (irregular schedules, see analysis_deploy.py) takes precedence."""
+    if "cu_override" in df.columns:
+        return df["cu_override"].values.astype(bool)
     c = df["cycle"].values - 5
     return (c > 0) & (c % L == 0)
 
@@ -112,7 +115,7 @@ def checkup_mask(df, L):
 def _anchor_state(df, L):
     """Per row: index (into df) of the most recent check-up strictly before it in the same cell,
     or -1 for commissioning. Cached on (id(df), L) because it is reused for many (kappa, mu)."""
-    key = (id(df), len(df), L)
+    key = (id(df), len(df), L, "cu_override" in df.columns, int(df["cycle"].values[:200].sum()))
     if _anchor_state.cache.get("key") == key:
         return _anchor_state.cache["val"]
     is_cu = checkup_mask(df, L)

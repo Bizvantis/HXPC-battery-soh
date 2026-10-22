@@ -74,24 +74,57 @@ def alpha_L(p):
     write("tab_alphaL.tex", lines)
 
 
+def holm(pvals):
+    """Holm step-down adjusted p-values."""
+    p = np.asarray(pvals, float)
+    o = np.argsort(p)
+    adj = np.empty_like(p)
+    run = 0.0
+    for r, i in enumerate(o):
+        run = max(run, min(1.0, (len(p) - r) * p[i]))
+        adj[i] = run
+    return adj
+
+
 def stats(p):
-    """Wilcoxon p-values (IS) of the proposed method against each baseline, per setting."""
-    lines = [r"\setlength{\tabcolsep}{3pt}", r"\begin{tabular}{llrrr}", r"\toprule",
-             "Setting & Comparison & $\\Delta$IS (\\%) & wins/13 & $p$" + BS, r"\midrule"]
-    d0 = sel(p, f"hxcp@{BB}", "day0", 0)["winkler"]
-    for k, nm in [("split", "Split CP"), ("cqr", "CQR"), ("qr", "LGB-QR"), ("de", "Deep ens."), ("mcd", "MC dropout"), ("gp", "GP")]:
-        b = sel(p, k, "day0", 0)["winkler"].reindex(d0.index)
-        lines.append(f"Day 0 & HX-CP vs {nm} & {100 * (1 - d0.mean() / b.mean()):.1f} & {(d0 < b).sum()} & {wilcoxon(d0, b).pvalue:.3f}" + BS)
-    keys = [f"hxcp@{BB}", "split", "cqr", "qr", "de", "mcd", "gp"]
+    """Paired tests over the 13 LODO domains with Holm correction within each family."""
+    lines = [r"\setlength{\tabcolsep}{3pt}", r"\begin{tabular}{llrrrr}", r"\toprule",
+             r"Family & Comparison & $\Delta$ (\%) & wins/13 & $p$ & $p_{\mathrm{Holm}}$" + BS, r"\midrule"]
+    base = [("split", "Split CP"), ("cqr", "CQR"), ("qr", "LGB-QR"), ("de", "Deep ens."), ("mcd", "MC dropout"), ("gp", "GP")]
+    h = sel(p, f"hxcp@{BB}", "day0", 0)
+    # family A: day-0 coverage shortfall below the target (safety-relevant)
+    rows, ps = [], []
+    for k, nm in base:
+        b = sel(p, k, "day0", 0).reindex(h.index)
+        u1, u2 = np.maximum(0.9 - h["cov"], 0), np.maximum(0.9 - b["cov"], 0)
+        pv = wilcoxon(u1, u2).pvalue
+        rows.append((f"HX-CP vs {nm}", 100 * (1 - u1.mean() / u2.mean()), int((u1 < u2).sum()), pv)); ps.append(pv)
+    for (c, d, w, pv), pa in zip(rows, holm(ps)):
+        lines.append(f"Day 0, shortfall & {c} & {d:.1f} & {w} & {pv:.3f} & {pa:.3f}" + BS)
+    lines.append(r"\midrule")
+    # family B: day-0 interval score
+    rows, ps = [], []
+    for k, nm in base:
+        b = sel(p, k, "day0", 0)["winkler"].reindex(h.index)
+        pv = wilcoxon(h["winkler"], b).pvalue
+        rows.append((f"HX-CP vs {nm}", 100 * (1 - h["winkler"].mean() / b.mean()), int((h["winkler"] < b).sum()), pv)); ps.append(pv)
+    for (c, d, w, pv), pa in zip(rows, holm(ps)):
+        lines.append(f"Day 0, IS & {c} & {d:.1f} & {w} & {pv:.3f} & {pa:.3f}" + BS)
+    keys = [f"hxcp@{BB}"] + [k for k, _ in base]
     piv = pd.concat([sel(p, k, "day0", 0)["winkler"].rename(k) for k in keys], axis=1)
     fr = friedmanchisquare(*[piv[k] for k in keys])
-    lines.append(f"Day 0 & Friedman (7 methods) & & & {fr.pvalue:.3f}" + BS)
+    lines.append(f"Day 0, IS & Friedman (7 methods) & & & {fr.pvalue:.3f} &" + BS)
     lines.append(r"\midrule")
+    # family C: in-service interval score
+    rows, ps = [], []
     for L in (25, 50, 100, 200):
         o = sel(p, f"hxcp+@{BB}", "inservice", L)["winkler"]
         for k, nm in [("persist_online", "Persist.+online"), ("aci_split", "ACI")]:
             b = sel(p, k, "inservice", L)["winkler"].reindex(o.index)
-            lines.append(f"$L={L}$ & HX-CP+ vs {nm} & {100 * (1 - o.mean() / b.mean()):.1f} & {(o < b).sum()} & {wilcoxon(o, b).pvalue:.3f}" + BS)
+            pv = wilcoxon(o, b).pvalue
+            rows.append((f"$L={L}$: HX-CP+ vs {nm}", 100 * (1 - o.mean() / b.mean()), int((o < b).sum()), pv)); ps.append(pv)
+    for (c, d, w, pv), pa in zip(rows, holm(ps)):
+        lines.append(f"In service, IS & {c} & {d:.1f} & {w} & {pv:.3f} & {pa:.3f}" + BS)
     lines += [r"\bottomrule", r"\end{tabular}"]
     write("tab_stats.tex", lines)
 
