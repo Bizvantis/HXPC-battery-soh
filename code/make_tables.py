@@ -39,10 +39,23 @@ def summarise(pdm, methods, stage, L, alpha=0.1):
         g = sub[sub.method == key]
         if g.empty:
             continue
+        lo, hi = bootstrap_ci(g["winkler"].values)
+        clo, chi = bootstrap_ci(g["cov"].values)
         rows.append(dict(key=key, name=name, cov=g["cov"].mean(), worst=g["cov"].min(),
                          width=g["width"].mean(), winkler=g["winkler"].mean(), p10=g["cell_p10"].mean(),
-                         ok=g["cell_ok"].mean(), rmse=g["rmse"].mean(), inf=g["inf_frac"].mean(), n=len(g)))
+                         ok=g["cell_ok"].mean(), rmse=g["rmse"].mean(), inf=g["inf_frac"].mean(), n=len(g),
+                         is_lo=lo, is_hi=hi, cov_lo=clo, cov_hi=chi))
     return pd.DataFrame(rows)
+
+
+def bootstrap_ci(v, n_boot=10000, level=0.95, seed=0):
+    """Percentile bootstrap CI of the mean over target domains."""
+    v = np.asarray(v, float)
+    if not np.all(np.isfinite(v)):
+        return np.nan, np.nan
+    rng = np.random.default_rng(seed)
+    m = rng.choice(v, size=(n_boot, len(v)), replace=True).mean(1)
+    return np.quantile(m, (1 - level) / 2), np.quantile(m, 1 - (1 - level) / 2)
 
 
 def fmt_table(t, bold_best=("winkler",)):
@@ -50,7 +63,8 @@ def fmt_table(t, bold_best=("winkler",)):
     best = {c: t[c].min() for c in bold_best}
     for _, r in t.iterrows():
         cells = [r["name"]]
-        cells.append(f"{100 * r['cov']:.1f}")
+        cells.append(f"{100 * r['cov']:.1f}" + ("" if np.isnan(r["cov_lo"]) else
+                     f" {{\\scriptsize[{100 * r['cov_lo']:.0f}, {100 * r['cov_hi']:.0f}]}}"))
         cells.append(f"{100 * r['worst']:.1f}")
         cells.append(f"{r['p10'] * 100:.1f}")
         cells.append(f"{r['ok'] * 100:.0f}")
@@ -59,6 +73,8 @@ def fmt_table(t, bold_best=("winkler",)):
         wk = "$\\infty$" if r["inf"] > 0.5 else f"{r['winkler']:.2f}"
         if r["inf"] <= 0.5 and np.isclose(r["winkler"], best["winkler"]):
             wk = "\\textbf{" + wk + "}"
+        if r["inf"] <= 0.5 and not np.isnan(r["is_lo"]):
+            wk += f" {{\\scriptsize[{r['is_lo']:.1f}, {r['is_hi']:.1f}]}}"
         cells.append(wk)
         cells.append(f"{r['rmse']:.2f}")
         lines.append(" & ".join(cells) + BS)

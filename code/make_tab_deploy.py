@@ -15,7 +15,7 @@ def agg(sub):
 
 
 rows = []
-for lv, lab in [("0.0", "none (exact)"), ("0.5", "$\\sigma=0.5$~pp"), ("1.0", "$\\sigma=1$~pp"), ("2.0", "$\\sigma=2$~pp")]:
+for lv, lab in [("0.0", "none (exact)"), ("0.5", "$\\sigma_\\varepsilon=0.5$~pp"), ("1.0", "$\\sigma_\\varepsilon=1$~pp"), ("2.0", "$\\sigma_\\varepsilon=2$~pp")]:
     rows.append(("Check-up noise", lab, agg(d[(d.exp == "noise") & (d.level == lv)])))
 for lv, lab in [("regular", "regular, every $L$"), ("irregular", "irregular, $U(0.5L,1.5L)$ gaps")]:
     rows.append(("Schedule", lab, agg(d[(d.exp == "schedule") & (d.level == lv)])))
