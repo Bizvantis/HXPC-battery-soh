@@ -5,13 +5,15 @@ set -e
 cd code
 python run_offline.py --seeds 0 1 2
 python run_proposed.py --seeds 0 1 2
-python run_offline.py --seeds 0 --protocol lodso
-python run_proposed.py --seeds 0 --protocol lodso
+python run_offline.py --seeds 0 1 2 --protocol lodso
+python run_proposed.py --seeds 0 1 2 --protocol lodso
+python run_da.py --seeds 0 1 2
 python -c "import evaluate as E; E.evaluate('lodo'); E.evaluate('lodso')"
 python analysis_extra.py
 python analysis_more.py
 python analysis_deploy.py
 python analysis_decision.py
+python analysis_da.py
 python benchmark_wang.py
 python leakage.py
 python make_tab_data.py

@@ -130,12 +130,29 @@ def stats(p):
 
 
 def backbone(p):
-    lines = [r"\setlength{\tabcolsep}{3pt}", r"\begin{tabular}{llrrrr}", r"\toprule",
-             "Stage & Backbone & Cov & Worst & W & IS" + BS, r"\midrule"]
-    for st, L, k, lab in [("day0", 0, "hxcp", "Day 0 (HX-CP)"), ("inservice", 100, "hxcp+", "In service, $L=100$")]:
-        for bb, nm in [("dse", "GBDT-only (DSE)"), ("hdse", "Heterogeneous (HDSE)")]:
-            g = sel(p, f"{k}@{bb}", st, L)
-            lines.append(f"{lab if bb == 'dse' else ''} & {nm} & {100 * g['cov'].mean():.1f} & {100 * g['cov'].min():.1f} & {g['width'].mean():.2f} & {g['winkler'].mean():.2f}" + BS)
+    """Backbone comparison, including the domain-adaptation (DANN) backbone of run_da.py / analysis_da.py."""
+    fda = os.path.join(RES, "da_lodo.csv")
+    da = pd.read_csv(fda).groupby(["stage", "L", "method", "alpha", "fold"], as_index=False).mean(numeric_only=True) \
+        if os.path.exists(fda) else None
+
+    def row(lab, nm, g):
+        return (f"{lab} & {nm} & {100 * g['cov'].mean():.1f} & {100 * g['cov'].min():.1f} & {g['width'].mean():.2f} & "
+                f"{g['winkler'].mean():.2f} & {g['rmse'].mean():.2f}" + BS)
+
+    lines = [r"\setlength{\tabcolsep}{2pt}", r"\begin{tabular}{llrrrrr}", r"\toprule",
+             "Method & Backbone & Cov & Worst & W & IS & RMSE" + BS, r"\midrule"]
+    if da is not None:
+        lines.append(row("Split CP (day 0)", "LightGBM", sel(p, "split", "day0", 0)))
+        lines.append(row("", "DANN", sel(da, "split@dann", "day0", 0)))
+        lines.append(r"\midrule")
+    for st, L, k, lab in [("day0", 0, "hxcp", "HX-CP (day 0)"), ("inservice", 100, "hxcp+", "HX-CP+ ($L=100$)")]:
+        bbs = [("dse", "GBDT-only (DSE)", p), ("hdse", "Heterogeneous (HDSE)", p)]
+        if da is not None:
+            bbs.append(("hdse_da", "HDSE with DANN (HDSE-DA)", da))
+        for i, (bb, nm, src) in enumerate(bbs):
+            lines.append(row(lab if i == 0 else "", nm, sel(src, f"{k}@{bb}", st, L)))
+        if st == "day0":
+            lines.append(r"\midrule")
     lines += [r"\bottomrule", r"\end{tabular}"]
     write("tab_backbone.tex", lines)
 
@@ -166,10 +183,10 @@ def lodso():
 def leakage():
     r = pd.read_csv(os.path.join(RES, "leakage.csv"))
     g = r.groupby(["variant", "domain"])[["mape", "rmse"]].mean().groupby("variant").agg(["mean", "std"])
-    order = [("leaky (Wang 2024 preprocessing)", "Whole-life min--max + $3\\sigma$ filter \\cite{wang2024pinn}", "no"),
+    order = [("leaky (Wang 2024 preprocessing)", "Whole-life min--max + $3\\sigma$ filter (PINN study)", "no"),
              ("causal, absolute SOH", "Causal features, absolute SOH", "yes"),
              ("causal, commissioning-referenced", "Causal features, $\\Delta$SOH (ours)", "yes")]
-    lines = [r"\setlength{\tabcolsep}{3pt}", r"\begin{tabular}{lcrr}", r"\toprule",
+    lines = [r"\setlength{\tabcolsep}{3pt}", r"\begin{tabular}{p{3.4cm}crr}", r"\toprule",
              "Preprocessing & Deployable & MAPE (\\%) & RMSE (pp)" + BS, r"\midrule"]
     for k, nm, dep in order:
         lines.append(f"{nm} & {dep} & {g.loc[k, ('mape', 'mean')]:.2f} & {g.loc[k, ('rmse', 'mean')]:.2f}" + BS)

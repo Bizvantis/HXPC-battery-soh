@@ -17,8 +17,8 @@ def fmt(n):
     return f"{n:,}".replace(",", "{,}")
 
 
-lines = [r"\setlength{\tabcolsep}{3pt}", r"\begin{tabular}{lllrrr}", r"\toprule",
-         "Domain & Chem. & Protocol & Cells & Cycles & Med.\\ life" + BS, r"\midrule"]
+lines = [r"\setlength{\tabcolsep}{2pt}", r"\begin{tabular}{lllrrr}", r"\toprule",
+         "Domain & Chem. & Protocol & Cells & Cycles & \\makecell{Med.\\\\life}" + BS, r"\midrule"]
 for o in order:
     ds, ch, _ = DOMAIN_INFO[o]
     sub = d[d["domain"] == o]

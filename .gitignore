@@ -20,3 +20,5 @@ paper/
 lit/
 # remove the line above if you want to publish the LaTeX sources
 GITHUB_SETUP.md
+overleaf_ieee_access/
+*.zip

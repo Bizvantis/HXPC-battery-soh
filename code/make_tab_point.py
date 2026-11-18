@@ -13,7 +13,7 @@ def row(label, vals):
 
 
 lines = [r"\setlength{\tabcolsep}{3pt}", r"\begin{tabular}{lrrrrr}", r"\toprule",
-         r" & \multicolumn{2}{c}{Ours (causal)} & \multicolumn{3}{c}{Wang et al.\ \cite{wang2024pinn}}" + BS,
+         r" & \multicolumn{2}{c}{Ours (causal)} & \multicolumn{3}{c}{Wang et al.}" + BS,
          r"\cmidrule(lr){2-3}\cmidrule(lr){4-6}",
          r"Test batch & $\Delta$SOH & SOH & PINN & MLP & CNN" + BS, r"\midrule"]
 for (exp, b), r in m.iterrows():

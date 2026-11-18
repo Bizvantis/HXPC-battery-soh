@@ -11,14 +11,14 @@ BB = os.environ.get("MAIN_BACKBONE", "hdse")
 LMAIN = int(os.environ.get("LMAIN", "100"))
 BS = "\\\\"
 
-DAY0 = [("split", "Split CP \\cite{lei2018}"), ("wcp", "Weighted CP \\cite{tibshirani2019}"),
-        ("cqr", "CQR \\cite{romano2019cqr}"), ("qr", "LightGBM QR"), ("de", "Deep ensemble \\cite{lakshminarayanan2017}"),
-        ("mcd", "MC dropout \\cite{gal2016}"), ("gp", "GP \\cite{richardson2019}"),
+DAY0 = [("split", "Split CP"), ("wcp", "Weighted CP"),
+        ("cqr", "CQR"), ("qr", "LightGBM QR"), ("de", "Deep ensemble"),
+        ("mcd", "MC dropout"), ("gp", "GP"),
         (f"xd_pool@{BB}", "XD-CP, pooled (abl.)"), (f"xd@{BB}", "XD-CP, hierarchical (abl.)"),
         (f"hxcp@{BB}", "\\textbf{HX-CP (ours)}")]
-INS = [("aci_split", "ACI on split CP \\cite{gibbs2021aci}"), ("persist_cp", "Persistence + XD-CP"),
+INS = [("aci_split", "ACI on split CP"), ("persist_cp", "Persistence + XD-CP"),
        ("persist_online", "Persistence + online"), (f"abl_noanchor@{BB}", "HX-CP + online, no anchor (abl.)"),
-       (f"abl_abs@{BB}", "HX-CP+, unnormalised (abl.)"), (f"abl_kappa1@{BB}", "HX-CP+, $\\kappa{=}1$ (abl.)"),
+       (f"abl_abs@{BB}", "HX-CP+, unnormalized (abl.)"), (f"abl_kappa1@{BB}", "HX-CP+, $\\kappa{=}1$ (abl.)"),
        (f"hxcp+static@{BB}", "HX-CP+, static $q_0$ (abl.)"), (f"hxcp+@{BB}", "\\textbf{HX-CP+ (ours)}")]
 
 
