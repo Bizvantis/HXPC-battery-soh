@@ -2,7 +2,7 @@
 
 This repository contains the code for the paper
 
-> **Distribution-Free Battery State-of-Health Intervals for Unseen Cell Types: Hierarchical Cross-Domain Conformal Prediction With In-Service Check-Up Adaptation** (submitted to *IEEE Transactions on Industrial Informatics*).
+> **Conformal State-of-Health Intervals for Unseen Lithium-Ion Battery Types With In-Service Adaptation** (manuscript for *IEEE Access*).
 
 It covers two methods:
 
