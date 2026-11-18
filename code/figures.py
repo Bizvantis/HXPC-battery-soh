@@ -237,7 +237,7 @@ def fig_extra():
         ys2.append(p[(p.method == f"recal_m{m}") & (p.alpha == 0.1)].winkler.mean())
     ax.plot(xs2, ys2, color=C["orange"], marker="s", ms=3, ls="--", label="recalibration (lab cells)")
     ax.set_xscale("log")
-    ax.set_xlabel("labelled cycles per domain")
+    ax.set_xlabel("labeled cycles per domain")
     ax.set_ylabel("interval score (pp)")
     ax.set_title("(c) label efficiency", pad=2)
     ax.legend(frameon=False, fontsize=5, loc="upper left", bbox_to_anchor=(0.0, 0.93))
