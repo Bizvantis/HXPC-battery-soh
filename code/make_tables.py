@@ -63,8 +63,11 @@ def fmt_table(t, bold_best=("winkler",)):
     best = {c: t[c].min() for c in bold_best}
     for _, r in t.iterrows():
         cells = [r["name"]]
+        # integer CI bounds, or one decimal when rounding would place the mean outside them
+        nd = 0 if (np.isnan(r["cov_lo"]) or round(100 * r["cov_lo"]) <= round(100 * r["cov"], 1)
+                   <= round(100 * r["cov_hi"])) else 1
         cells.append(f"{100 * r['cov']:.1f}" + ("" if np.isnan(r["cov_lo"]) else
-                     f" {{\\scriptsize[{100 * r['cov_lo']:.0f}, {100 * r['cov_hi']:.0f}]}}"))
+                     f" {{\\scriptsize[{100 * r['cov_lo']:.{nd}f}, {100 * r['cov_hi']:.{nd}f}]}}"))
         cells.append(f"{100 * r['worst']:.1f}")
         cells.append(f"{r['p10'] * 100:.1f}")
         cells.append(f"{r['ok'] * 100:.0f}")

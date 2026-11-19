@@ -23,7 +23,7 @@ for o in order:
     ds, ch, _ = DOMAIN_INFO[o]
     sub = d[d["domain"] == o]
     lines.append(f"{o} & {ch} & {proto[o]} & {sub['cell'].nunique()} & {fmt(len(sub))} & "
-                 f"{int(life[dom_of == o].median())}" + BS)
+                 f"{fmt(int(life[dom_of == o].median()))}" + BS)
 lines += [r"\midrule", f"Total & & & {d['cell'].nunique()} & {fmt(len(d))} & " + BS, r"\bottomrule",
           r"\end{tabular}"]
 open("../paper/tab_data.tex", "w").write("\n".join(lines) + "\n")
